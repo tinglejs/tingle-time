@@ -1,8 +1,5 @@
 # tingle-time [![npm version](https://badge.fury.io/js/tingle-time.svg)](http://badge.fury.io/js/tingle-time)
 
-
-## TL;DR
-
 ## Simple Usage
 
 ## 可用配置
