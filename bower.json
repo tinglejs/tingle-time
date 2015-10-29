@@ -1,0 +1,26 @@
+{
+  "name": "tingle-time",
+  "version": "0.0.0",
+  "description": "tingle-time component for tingle.",
+  "author": "shane.wuq",
+  "main": "src/index.js",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "tingle-time",
+    "Time",
+    ""
+  ],
+  "license": "MIT",
+  "screenshots": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "dist",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
