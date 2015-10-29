@@ -14,18 +14,14 @@ class Demo extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-        }
     }
-    //1422683666000
-    //Tue Oct 27 2015 16:50:17 GMT+0800 (CST
 
     render() {
         return (
             <div>
-                <Time stamp="1446009194366"  before={true}/>
-                <Time stamp="1422683666000" format="YYYY-MM-DD"/>
-                <Time stamp="1445958112957" format="YYYY-MM-DD  hh:mm:ss" />
+                <Time stamp="1446009194366"/>
+                <Time stamp="1422683666000" format="YYYY-MM-DD" post={true} maxPostDays='270'/>
+                <Time stamp="1445958112957" format="YYYY-MM-DD hh:mm:ss" post={true} />
             </div>
         );
     }
