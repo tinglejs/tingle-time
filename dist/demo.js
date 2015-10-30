@@ -98,9 +98,9 @@
 	            return React.createElement(
 	                'div',
 	                null,
-	                React.createElement(Time, { stamp: '1446009194366' }),
-	                React.createElement(Time, { stamp: '1422683666000', format: 'YYYY-MM-DD', past: true, maxPastDays: '270' }),
-	                React.createElement(Time, { stamp: '1445958112957', format: 'YYYY-MM-DD hh:mm:ss', past: true })
+	                React.createElement(Time, { stamp: 1446009194366 }),
+	                React.createElement(Time, { stamp: 1422683666000, format: 'YYYY-MM-DD', past: true, maxPastDays: 270 }),
+	                React.createElement(Time, { stamp: 1445958112957, format: 'YYYY-MM-DD hh:mm:ss', past: true })
 	            );
 	        }
 	    }]);
@@ -188,10 +188,10 @@
 
 	/**
 	 * Time Component for tingle
-	 * @param {stamp} String time
-	 * @param {post} Boolean  是否显示‘x天前’格式
-	 * @param {maxPastDays} String past为true时,此项才有效
-	 * @param {format} String
+	 * @param stamp {Number} time
+	 * @param post {Boolean}  是否显示‘x天前’格式
+	 * @param maxPastDays {Number} past为true时,此项才有效
+	 * @param format {String}
 	 * @author shane.wuq
 	 * Copyright 2014-2015, Tingle Team, Alinw.
 	 * All rights reserved.
@@ -211,20 +211,17 @@
 	var classnames = __webpack_require__(2);
 	
 	// 定义时间常量
-	var s = 1000;
-	var m = s * 60;
-	var h = m * 60;
-	var d = h * 24;
+	var S = 1000;
+	var M = S * 60;
+	var H = M * 60;
+	var D = H * 24;
+	
+	var arr = new Map([['分钟', M], ['小时', H], ['天', D]]);
 	
 	// 年月日分隔符
 	var yc = '-';
 	var mc = '-';
 	var dc = '-';
-	
-	//
-	var arr = new Map([['分钟', m], ['小时', h], ['天', d]]);
-	
-	var displayTime = undefined;
 	
 	var Time = (function (_React$Component) {
 	    _inherits(Time, _React$Component);
@@ -237,18 +234,19 @@
 	            past: props.past,
 	            maxPastDays: props.maxPastDays,
 	            format: props.format,
-	            pastTime: this._formatFn(true),
-	            formatTime: this._formatFn(false)
+	            pastTime: this._format(true),
+	            formatTime: this._format(false)
 	        };
 	    }
 	
 	    _createClass(Time, [{
-	        key: '_formatFn',
-	        value: function _formatFn(isPast) {
+	        key: '_format',
+	        value: function _format(isPast) {
 	            var _this = this;
 	
 	            var t = this;
-	            var format = t.props.format.toLocaleUpperCase();
+	            var displayTime = undefined;
+	            var format = t.props.format.toUpperCase();
 	
 	            if (isPast) {
 	                var _ret = (function () {
@@ -256,7 +254,7 @@
 	                     * 1天前;1小时前;1分钟前
 	                     */
 	                    // 当前时间
-	                    var nowTime = new Date().valueOf();
+	                    var nowTime = +new Date();
 	
 	                    // 传输入时间与当前时间的时间差
 	                    var rangeTime = nowTime - _this.props.stamp;
@@ -270,7 +268,7 @@
 	                            displayTime = '1' + key + '前';
 	
 	                            // TODO: 这里有没有更好办法
-	                            if (rangeRate >= parseInt(t.props.maxPastDays, 10) && key === '天') {
+	                            if (rangeRate >= t.props.maxPastDays && key === '天') {
 	                                flag = true;
 	                            } else {
 	                                displayTime = '' + rangeRate + key + '前';
@@ -291,7 +289,8 @@
 	    }, {
 	        key: '_normalFormat',
 	        value: function _normalFormat(format) {
-	            var time = new Date(parseInt(this.props.stamp, 10));
+	            var displayTime = undefined;
+	            var time = new Date(this.props.stamp);
 	            // 年,月,日,时,分,秒
 	            var year = time.getFullYear();
 	            var month = time.getMonth() + 1;
@@ -352,7 +351,7 @@
 	            var t = this;
 	            return React.createElement(
 	                'div',
-	                { ref: 'root', className: classnames('tTime', _defineProperty({}, t.props.className, !!t.props.className)), onClick: t.handleToggleFormat.bind(t) },
+	                { className: classnames('tTime', _defineProperty({}, t.props.className, !!t.props.className)), onClick: t.handleToggleFormat.bind(t) },
 	                t.state.past ? t.state.pastTime : t.state.formatTime
 	            );
 	        }
@@ -362,14 +361,16 @@
 	})(React.Component);
 	
 	Time.defaultProps = {
+	    stamp: +new Date(),
 	    past: false,
-	    maxPastDays: '7',
+	    maxPastDays: 7,
 	    format: 'YYYY-MM-DD'
 	};
 	
 	Time.propTypes = {
-	    past: React.PropTypes.boolean,
-	    maxPastDays: React.PropTypes.string,
+	    stamp: React.PropTypes.number,
+	    past: React.PropTypes.bool,
+	    maxPastDays: React.PropTypes.number,
 	    format: React.PropTypes.string
 	};
 	

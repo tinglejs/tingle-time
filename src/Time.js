@@ -1,9 +1,9 @@
 /**
  * Time Component for tingle
- * @param {stamp} String time
- * @param {post} Boolean  是否显示‘x天前’格式
- * @param {maxPastDays} String past为true时,此项才有效
- * @param {format} String
+ * @param stamp {Number} time
+ * @param post {Boolean}  是否显示‘x天前’格式
+ * @param maxPastDays {Number} past为true时,此项才有效
+ * @param format {String}
  * @author shane.wuq
  * Copyright 2014-2015, Tingle Team, Alinw.
  * All rights reserved.
@@ -11,22 +11,19 @@
 var classnames = require('classnames');
 
 // 定义时间常量
-const s = 1000;
-const m = s*60;
-const h = m*60;
-const d = h*24;
+const S = 1000;
+const M = S * 60;
+const H = M * 60;
+const D = H * 24;
 
-// 年月日分隔符
-let[yc, mc, dc] = ['-', '-', '-']
-
-//
 let arr = new Map([
-    ['分钟', m],
-    ['小时', h],
-    ['天', d]
+    ['分钟', M],
+    ['小时', H],
+    ['天', D]
 ]);
 
-let displayTime;
+// 年月日分隔符
+let [yc, mc, dc] = ['-', '-', '-'];
 
 class Time extends React.Component {
 
@@ -36,21 +33,22 @@ class Time extends React.Component {
             past: props.past,
             maxPastDays: props.maxPastDays,
             format: props.format,
-            pastTime: this._formatFn(true),
-            formatTime: this._formatFn(false)
+            pastTime: this._format(true),
+            formatTime: this._format(false)
         }
     }
 
-    _formatFn(isPast) {
-        const t = this;
-        let format = t.props.format.toLocaleUpperCase();
+    _format(isPast) {
+        let t = this;
+        let displayTime;
+        let format = t.props.format.toUpperCase();
 
-        if(isPast) {
+        if (isPast) {
             /**
              * 1天前;1小时前;1分钟前
              */
             // 当前时间
-            let nowTime = (new Date()).valueOf();
+            let nowTime = +new Date();
 
             // 传输入时间与当前时间的时间差
             let rangeTime = nowTime - this.props.stamp;
@@ -64,7 +62,7 @@ class Time extends React.Component {
                     displayTime = `1${key}前`;
 
                     // TODO: 这里有没有更好办法
-                    if (rangeRate >= parseInt(t.props.maxPastDays, 10) && key === '天') {
+                    if (rangeRate >= t.props.maxPastDays && key === '天') {
                         flag = true;
                     } else {
                         displayTime = `${rangeRate}${key}前`
@@ -80,7 +78,8 @@ class Time extends React.Component {
     }
 
     _normalFormat(format) {
-        let time = new Date(parseInt(this.props.stamp, 10));
+        let displayTime;
+        let time = new Date(this.props.stamp);
         // 年,月,日,时,分,秒
         let [year, month, day, hour, minute, second] = [
             time.getFullYear(),
@@ -126,7 +125,7 @@ class Time extends React.Component {
     }
 
     handleToggleFormat() {
-        const t = this;
+        let t = this;
 
         // 传入的props.past为false; 不需要切换显示方式
         if(!t.props.past)  return false;
@@ -137,9 +136,9 @@ class Time extends React.Component {
     }
 
     render() {
-        const t = this;
+        let t = this;
         return (
-            <div ref="root" className={classnames('tTime', {
+            <div className={classnames('tTime', {
                 [t.props.className]: !!t.props.className
             })} onClick={t.handleToggleFormat.bind(t)}>
                 {t.state.past ? t.state.pastTime : t.state.formatTime}
@@ -149,14 +148,16 @@ class Time extends React.Component {
 }
 
 Time.defaultProps = {
+    stamp: +new Date(),
     past: false,
-    maxPastDays: '7',
+    maxPastDays: 7,
     format: 'YYYY-MM-DD'
 }
 
 Time.propTypes = {
-    past: React.PropTypes.boolean,
-    maxPastDays: React.PropTypes.string,
+    stamp: React.PropTypes.number,
+    past: React.PropTypes.bool,
+    maxPastDays: React.PropTypes.number,
     format: React.PropTypes.string
 }
 
