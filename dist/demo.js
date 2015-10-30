@@ -90,11 +90,7 @@
 	        _classCallCheck(this, Demo);
 	
 	        _get(Object.getPrototypeOf(Demo.prototype), 'constructor', this).call(this, props);
-	        this.state = {};
 	    }
-	
-	    //1422683666000
-	    //Tue Oct 27 2015 16:50:17 GMT+0800 (CST
 	
 	    _createClass(Demo, [{
 	        key: 'render',
@@ -102,9 +98,9 @@
 	            return React.createElement(
 	                'div',
 	                null,
-	                React.createElement(Time, { stamp: '1446009194366', before: true }),
-	                React.createElement(Time, { stamp: '1422683666000', format: 'YYYY-MM-DD' }),
-	                React.createElement(Time, { stamp: '1445958112957', format: 'YYYY-MM-DD  hh:mm:ss' })
+	                React.createElement(Time, { stamp: 1446009194366 }),
+	                React.createElement(Time, { stamp: 1422683666000, format: 'YYYY-MM-DD', past: true, maxPastDays: 270 }),
+	                React.createElement(Time, { stamp: 1445958112957, format: 'YYYY-MM-DD hh:mm:ss', past: true })
 	            );
 	        }
 	    }]);
@@ -192,6 +188,10 @@
 
 	/**
 	 * Time Component for tingle
+	 * @param stamp {Number} time
+	 * @param post {Boolean}  是否显示‘x天前’格式
+	 * @param maxPastDays {Number} past为true时,此项才有效
+	 * @param format {String}
 	 * @author shane.wuq
 	 * Copyright 2014-2015, Tingle Team, Alinw.
 	 * All rights reserved.
@@ -210,6 +210,19 @@
 	
 	var classnames = __webpack_require__(2);
 	
+	// 定义时间常量
+	var S = 1000;
+	var M = S * 60;
+	var H = M * 60;
+	var D = H * 24;
+	
+	var arr = new Map([['分钟', M], ['小时', H], ['天', D]]);
+	
+	// 年月日分隔符
+	var yc = '-';
+	var mc = '-';
+	var dc = '-';
+	
 	var Time = (function (_React$Component) {
 	    _inherits(Time, _React$Component);
 	
@@ -218,34 +231,66 @@
 	
 	        _get(Object.getPrototypeOf(Time.prototype), 'constructor', this).call(this, props);
 	        this.state = {
-	            before: props.before,
+	            past: props.past,
+	            maxPastDays: props.maxPastDays,
 	            format: props.format,
-	            displayTime: ''
+	            pastTime: this._format(true),
+	            formatTime: this._format(false)
 	        };
 	    }
 	
 	    _createClass(Time, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            var t = this;
-	            t._formatFn(t.state.before);
-	        }
-	    }, {
-	        key: '_formatFn',
-	        value: function _formatFn(isBefore) {
+	        key: '_format',
+	        value: function _format(isPast) {
 	            var _this = this;
 	
 	            var t = this;
-	            var s = 1000;
-	            var m = s * 60;
-	            var h = m * 60;
-	            var d = h * 24;
-	            var mm = d * 30;
-	
 	            var displayTime = undefined;
-	            var format = t.props.format.toLocaleUpperCase();
-	            var time = new Date(parseInt(this.props.stamp, 10));
+	            var format = t.props.format.toUpperCase();
 	
+	            if (isPast) {
+	                var _ret = (function () {
+	                    /**
+	                     * 1天前;1小时前;1分钟前
+	                     */
+	                    // 当前时间
+	                    var nowTime = +new Date();
+	
+	                    // 传输入时间与当前时间的时间差
+	                    var rangeTime = nowTime - _this.props.stamp;
+	
+	                    var flag = false;
+	                    arr.forEach(function (value, key) {
+	                        var rangeRate = Math.floor(rangeTime / value);
+	                        if (rangeRate >= 1) {
+	
+	                            // FIXME: 中午12:00相对于昨天23:00，也会走'1小时前’的逻辑,因为一天(24小时)没到；
+	                            displayTime = '1' + key + '前';
+	
+	                            // TODO: 这里有没有更好办法
+	                            if (rangeRate >= t.props.maxPastDays && key === '天') {
+	                                flag = true;
+	                            } else {
+	                                displayTime = '' + rangeRate + key + '前';
+	                            }
+	                        }
+	                    });
+	
+	                    return {
+	                        v: flag ? t._normalFormat(format) : displayTime
+	                    };
+	                })();
+	
+	                if (typeof _ret === 'object') return _ret.v;
+	            } else {
+	                return t._normalFormat(format);
+	            }
+	        }
+	    }, {
+	        key: '_normalFormat',
+	        value: function _normalFormat(format) {
+	            var displayTime = undefined;
+	            var time = new Date(this.props.stamp);
 	            // 年,月,日,时,分,秒
 	            var year = time.getFullYear();
 	            var month = time.getMonth() + 1;
@@ -254,93 +299,60 @@
 	            var minute = time.getMinutes();
 	            var second = time.getSeconds();
 	
-	            // 年月日分隔符
-	            var yc = '-';
-	            var mc = '-';
-	            var dc = '-';
-	
-	            if (isBefore) {
-	                (function () {
-	                    /**
-	                     * 1天前
-	                     * 1小时前
-	                     * 1分钟前
-	                     */
-	                    // 当前时间
-	                    var nowTime = new Date().valueOf();
-	
-	                    // 与当前时间差
-	                    var rangeTime = nowTime - _this.props.stamp;
-	
-	                    var arr = new Map([['分钟', m], ['小时', h], ['天', d], ['个月', mm]]);
-	
-	                    arr.forEach(function (value, key) {
-	                        // FIXME: 中午12:00相对于昨天23:00，也回走'1小时前’的逻辑,因为一天(24小时)没到；
-	                        rangeTime / value >= 1 ? displayTime = '1' + key + '前' : '';
-	                    });
-	                })();
-	            } else {
-	                /**
-	                 * 默认格式:YYYY—MM-DD
-	                 * 支持格式如下:
-	                 * YYYY/MM/DD; YYYY年MM月DD日; YYYY-MM-DD hh:mm:ss
-	                 * 支持简写 eg: YY-M-D 15-1-9
-	                 */
-	                if (/(Y+)/.test(format)) {
-	                    var reg$ = RegExp.$1.length;
-	                    if (reg$ === 2) {
-	                        year = String(year).slice(2, 4);
-	                    }
-	                    yc = format.substr(reg$, 1);
+	            /**
+	             * 默认格式:YYYY—MM-DD
+	             * 支持格式如下:
+	             * YYYY/MM/DD; YYYY年MM月DD日; YYYY-MM-DD hh:mm:ss
+	             * 支持简写 eg: YY-M-D 15-1-9
+	             */
+	            if (/(Y+)/.test(format)) {
+	                var reg$ = RegExp.$1.length;
+	                if (reg$ === 2) {
+	                    year = String(year).slice(2, 4);
 	                }
-	                if (/(M+)/.test(format)) {
-	                    var reg$ = RegExp.$1.length;
-	                    if (reg$ === 2 && month < 10) month = '0' + month;
-	                    mc = format.substr(format.indexOf('M') + reg$, 1);
-	                }
-	                if (/(D+)/.test(format)) {
-	                    var reg$ = RegExp.$1.length;
-	                    if (reg$ === 2 && day < 10) day = '0' + day;
-	                    dc = format.substr(format.indexOf('D') + reg$, 1);
-	                }
-	
-	                displayTime = '' + year + yc + month + mc + day + dc;
-	
-	                if (format.indexOf('HH:MM:SS') > -1) {
-	                    minute = minute < 10 ? '0' + minute : minute;
-	                    second = second < 10 ? '0' + second : second;
-	                    displayTime += ' ' + hour + ':' + minute + ':' + second;
-	                }
+	                yc = format.substr(reg$, 1);
+	            }
+	            if (/(M+)/.test(format)) {
+	                var reg$ = RegExp.$1.length;
+	                if (reg$ === 2 && month < 10) month = '0' + month;
+	                mc = format.substr(format.indexOf('M') + reg$, 1);
+	            }
+	            if (/(D+)/.test(format)) {
+	                var reg$ = RegExp.$1.length;
+	                if (reg$ === 2 && day < 10) day = '0' + day;
+	                dc = format.substr(format.indexOf('D') + reg$, 1);
 	            }
 	
-	            t.setState({
-	                displayTime: displayTime
-	            });
+	            displayTime = '' + year + yc + month + mc + day + dc;
+	
+	            if (format.indexOf('HH:MM:SS') > -1) {
+	                minute = minute < 10 ? '0' + minute : minute;
+	                second = second < 10 ? '0' + second : second;
+	                displayTime += ' ' + hour + ':' + minute + ':' + second;
+	            }
+	
+	            return displayTime;
 	        }
 	    }, {
-	        key: 'handleClick',
-	        value: function handleClick() {
+	        key: 'handleToggleFormat',
+	        value: function handleToggleFormat() {
 	            var t = this;
 	
-	            t._formatFn(!t.state.before);
+	            // 传入的props.past为false; 不需要切换显示方式
+	            if (!t.props.past) return false;
+	
 	            t.setState({
-	                before: !t.state.before
+	                past: !t.state.past
 	            });
 	        }
-	    }, {
-	        key: 'handleMouseOver',
-	        value: function handleMouseOver() {}
-	    }, {
-	        key: 'handleMouseOut',
-	        value: function handleMouseOut() {}
 	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var t = this;
 	            return React.createElement(
 	                'div',
-	                { ref: 'root', className: classnames('tTime', _defineProperty({}, t.props.className, !!t.props.className)), onClick: t.handleClick.bind(t) },
-	                t.state.displayTime
+	                { className: classnames('tTime', _defineProperty({}, t.props.className, !!t.props.className)), onClick: t.handleToggleFormat.bind(t) },
+	                t.state.past ? t.state.pastTime : t.state.formatTime
 	            );
 	        }
 	    }]);
@@ -349,12 +361,16 @@
 	})(React.Component);
 	
 	Time.defaultProps = {
-	    before: false,
+	    stamp: +new Date(),
+	    past: false,
+	    maxPastDays: 7,
 	    format: 'YYYY-MM-DD'
 	};
 	
 	Time.propTypes = {
-	    before: React.PropTypes.boolean,
+	    stamp: React.PropTypes.number,
+	    past: React.PropTypes.bool,
+	    maxPastDays: React.PropTypes.number,
 	    format: React.PropTypes.string
 	};
 	
