@@ -99,8 +99,8 @@
 	                'div',
 	                null,
 	                React.createElement(Time, { stamp: '1446009194366' }),
-	                React.createElement(Time, { stamp: '1422683666000', format: 'YYYY-MM-DD', post: true, maxPostDays: '270' }),
-	                React.createElement(Time, { stamp: '1445958112957', format: 'YYYY-MM-DD hh:mm:ss', post: true })
+	                React.createElement(Time, { stamp: '1422683666000', format: 'YYYY-MM-DD', past: true, maxPastDays: '270' }),
+	                React.createElement(Time, { stamp: '1445958112957', format: 'YYYY-MM-DD hh:mm:ss', past: true })
 	            );
 	        }
 	    }]);
@@ -190,7 +190,7 @@
 	 * Time Component for tingle
 	 * @param {stamp} String time
 	 * @param {post} Boolean  是否显示‘x天前’格式
-	 * @param {maxPostDays} String post为true时,此项才有效
+	 * @param {maxPastDays} String past为true时,此项才有效
 	 * @param {format} String
 	 * @author shane.wuq
 	 * Copyright 2014-2015, Tingle Team, Alinw.
@@ -234,10 +234,10 @@
 	
 	        _get(Object.getPrototypeOf(Time.prototype), 'constructor', this).call(this, props);
 	        this.state = {
-	            post: props.post,
-	            maxPostDays: props.maxPostDays,
+	            past: props.past,
+	            maxPastDays: props.maxPastDays,
 	            format: props.format,
-	            postTime: this._formatFn(true),
+	            pastTime: this._formatFn(true),
 	            formatTime: this._formatFn(false)
 	        };
 	    }
@@ -270,7 +270,7 @@
 	                            displayTime = '1' + key + '前';
 	
 	                            // TODO: 这里有没有更好办法
-	                            if (rangeRate >= parseInt(t.props.maxPostDays, 10) && key === '天') {
+	                            if (rangeRate >= parseInt(t.props.maxPastDays, 10) && key === '天') {
 	                                flag = true;
 	                            } else {
 	                                displayTime = '' + rangeRate + key + '前';
@@ -339,11 +339,11 @@
 	        value: function handleToggleFormat() {
 	            var t = this;
 	
-	            // 传入的props.post为false; 不需要切换显示方式
-	            if (!t.props.post) return false;
+	            // 传入的props.past为false; 不需要切换显示方式
+	            if (!t.props.past) return false;
 	
 	            t.setState({
-	                post: !t.state.post
+	                past: !t.state.past
 	            });
 	        }
 	    }, {
@@ -353,7 +353,7 @@
 	            return React.createElement(
 	                'div',
 	                { ref: 'root', className: classnames('tTime', _defineProperty({}, t.props.className, !!t.props.className)), onClick: t.handleToggleFormat.bind(t) },
-	                t.state.post ? t.state.postTime : t.state.formatTime
+	                t.state.past ? t.state.pastTime : t.state.formatTime
 	            );
 	        }
 	    }]);
@@ -362,14 +362,14 @@
 	})(React.Component);
 	
 	Time.defaultProps = {
-	    post: false,
-	    maxPostDays: '7',
+	    past: false,
+	    maxPastDays: '7',
 	    format: 'YYYY-MM-DD'
 	};
 	
 	Time.propTypes = {
-	    post: React.PropTypes.boolean,
-	    maxPostDays: React.PropTypes.string,
+	    past: React.PropTypes.boolean,
+	    maxPastDays: React.PropTypes.string,
 	    format: React.PropTypes.string
 	};
 	

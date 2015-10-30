@@ -20,8 +20,8 @@ class Demo extends React.Component {
         return (
             <div>
                 <Time stamp="1446009194366"/>
-                <Time stamp="1422683666000" format="YYYY-MM-DD" post={true} maxPostDays='270'/>
-                <Time stamp="1445958112957" format="YYYY-MM-DD hh:mm:ss" post={true} />
+                <Time stamp="1422683666000" format="YYYY-MM-DD" past={true} maxPastDays='270'/>
+                <Time stamp="1445958112957" format="YYYY-MM-DD hh:mm:ss" past={true} />
             </div>
         );
     }

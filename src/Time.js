@@ -2,7 +2,7 @@
  * Time Component for tingle
  * @param {stamp} String time
  * @param {post} Boolean  是否显示‘x天前’格式
- * @param {maxPostDays} String post为true时,此项才有效
+ * @param {maxPastDays} String past为true时,此项才有效
  * @param {format} String
  * @author shane.wuq
  * Copyright 2014-2015, Tingle Team, Alinw.
@@ -33,10 +33,10 @@ class Time extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            post: props.post,
-            maxPostDays: props.maxPostDays,
+            past: props.past,
+            maxPastDays: props.maxPastDays,
             format: props.format,
-            postTime: this._formatFn(true),
+            pastTime: this._formatFn(true),
             formatTime: this._formatFn(false)
         }
     }
@@ -64,7 +64,7 @@ class Time extends React.Component {
                     displayTime = `1${key}前`;
 
                     // TODO: 这里有没有更好办法
-                    if (rangeRate >= parseInt(t.props.maxPostDays, 10) && key === '天') {
+                    if (rangeRate >= parseInt(t.props.maxPastDays, 10) && key === '天') {
                         flag = true;
                     } else {
                         displayTime = `${rangeRate}${key}前`
@@ -128,11 +128,11 @@ class Time extends React.Component {
     handleToggleFormat() {
         const t = this;
 
-        // 传入的props.post为false; 不需要切换显示方式
-        if(!t.props.post)  return false;
+        // 传入的props.past为false; 不需要切换显示方式
+        if(!t.props.past)  return false;
 
         t.setState({
-            post: !t.state.post
+            past: !t.state.past
         });
     }
 
@@ -142,21 +142,21 @@ class Time extends React.Component {
             <div ref="root" className={classnames('tTime', {
                 [t.props.className]: !!t.props.className
             })} onClick={t.handleToggleFormat.bind(t)}>
-                {t.state.post ? t.state.postTime : t.state.formatTime}
+                {t.state.past ? t.state.pastTime : t.state.formatTime}
             </div>
         );
     }
 }
 
 Time.defaultProps = {
-    post: false,
-    maxPostDays: '7',
+    past: false,
+    maxPastDays: '7',
     format: 'YYYY-MM-DD'
 }
 
 Time.propTypes = {
-    post: React.PropTypes.boolean,
-    maxPostDays: React.PropTypes.string,
+    past: React.PropTypes.boolean,
+    maxPastDays: React.PropTypes.string,
     format: React.PropTypes.string
 }
 
